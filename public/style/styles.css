@@ -1,0 +1,12 @@
+body{
+    margin: 0px 0;
+    min-height: 100vh;
+    background-color: #fcfcfc;
+}
+.fond-blanc{
+    background-color: white;
+    border-radius: 4px 4px 4px 4px;
+    -moz-border-radius: 4px 4px 4px 4px;
+    -webkit-border-radius: 4px 4px 4px 4px;
+    border: 4px groove #0f0f0f;
+}

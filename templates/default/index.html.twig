@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}GetMAN{% endblock %}
+
+{% block body %}
+
+    <div>
+        <div class="col-6 mx-auto mt-5">
+            <div class="fond-blanc text-center border rounded">
+                <h1 class="mt-4">Requête</h1>
+                {{ form_start(form) }}
+                {{ form_row(form.method, {'label': "Méthode :", 'attr':{'class':'form-control col-6 mx-auto mb-3'}}) }}
+                {{ form_row(form.url, {'label': 'URL :', 'attr':{'class':'form-control col-6 mx-auto mb-3'}}) }}
+                <div id="params-fields-list"
+                    data-prototype="{{ form_widget(form.params.vars.prototype)|e }}"
+                    data-widget-tags="{{ '<div></div>'|e }}"
+                    data-widget-counter="{{ form.params|length }}">
+                    {% for paramsField in form.params %}
+                        <div>
+                            {{ form_errors(paramsField) }}
+                            {{ form_widget(paramsField) }}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <button type="button"
+                        class="add-another-collection-widget btn btn-primary mb-4"
+                        data-list-selector="#params-fields-list">+</button>
+                <button type="button"
+                        class="rm-another-collection-widget btn btn-primary mb-4"
+                        data-list-selector="#params-fields-list" disabled>-</button>
+                {{ form_row(form.Send,{'label':'Valider','attr':{'class':'btn btn-primary mb-4'}}) }}
+                {{ form_end(form) }}
+
+                <script src="{{ asset('scripts/add-collection-widget.js') }}"></script>
+            </div>
+            {% if affichage and result is not empty %}
+                <div class="fond-blanc border rounded mt-3">
+                    <h1 class="text-center mt-4">Resultat :</h1>
+                    {% autoescape false %}
+                        <div>{{ result|raw }}</div>
+                    {% endautoescape %}
+                </div>
+            {% endif %}
+            {% if TransportError is not empty %}
+                <div class="fond-blanc border rounded mt-3 text-center text-danger">
+                    {{ TransportError }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
