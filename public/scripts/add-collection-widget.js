@@ -1,12 +1,39 @@
+let previousKey = '', previousParam = '';
 $(document).ready(function () {
     let list = $($(this).attr('data-list-selector'));
     let counter = $('#params-fields-list').children().length;
-    if(counter === 0){
+
+    if (counter === 0) {
         $('.rm-another-collection-widget').attr('disabled', '');
     }
-    $('#send_url').on('change', function(e){
-        console.log(readUrl($('#send_url').val()));
+
+    $('#send_url').on('change', function (e) {
+        let urlParams = readUrl($('#send_url').val());
+        for (let i = 0; i < Object.keys(urlParams).length; i++) {
+            let exist = false;
+            $('#params-fields-list').children().children('div').each(function () {
+                if ($($($(this).children('div')[0]).children('input')[0]).val() === Object.keys(urlParams)[i]) {
+                    $($($(this).children('div')[1]).children('input')[0]).val(Object.values(urlParams)[i]);
+                    exist = true;
+                }
+            });
+            if (!exist) {
+                $('.add-another-collection-widget').click();
+                $($($($('#params-fields-list').children()).children().last().children('div')[0]).children('input')[0]).val(Object.keys(urlParams)[i]);
+                $($($($('#params-fields-list').children()).children().last().children('div')[1]).children('input')[0]).val(Object.values(urlParams)[i]);
+            }
+        }
+    })
+
+    $($($('#params-fields-list').children()).children()).each(function () {
+        $($($(this).children('div')[0]).children('input')[0]).off('change').on('change', onChangeKey).off('focus').on('focus', onFocusKey);
     });
+
+    $($($('#params-fields-list').children()).children()).each(function () {
+        $($($(this).children('div')[1]).children('input')[0]).off('change').on('change', onChangeParam).off('focus').on('focus', onFocusParam);
+    });
+
+
     $('.add-another-collection-widget').click(function (e) {
         var list = $($(this).attr('data-list-selector'));
         // Try to find the counter of the list or use the length of the list
@@ -27,12 +54,22 @@ $(document).ready(function () {
         var newElem = $(list.attr('data-widget-tags')).html(newWidget);
         newElem.appendTo(list);
         $('.rm-another-collection-widget').removeAttr('disabled');
+        $($($('#params-fields-list').children()).children()).each(function () {
+            $($($(this).children('div')[0]).children('input')[0]).off('change').on('change', onChangeKey).off('focus').on('focus', onFocusKey);
+        });
+
+        $($($('#params-fields-list').children()).children()).each(function () {
+            $($($(this).children('div')[1]).children('input')[0]).off('change').on('change', onChangeParam).off('focus').on('focus', onFocusParam);
+        });
     });
 
     $('.rm-another-collection-widget').click(function (e) {
         var list = $($(this).attr('data-list-selector'));
         // Try to find the counter of the list or use the length of the list
         var counter = list.data('widget-counter') || list.children().length;
+
+        $('#send_url').val($('#send_url').val().replace('?' + $($($($($(list[0]).children().last()).children()[0]).children()[0]).children('input')[0]).val() + '=' + $($($($($(list[0]).children().last()).children()[0]).children()[1]).children('input')[0]).val(), ""));
+        $('#send_url').val($('#send_url').val().replace('&' + $($($($($(list[0]).children().last()).children()[0]).children()[0]).children('input')[0]).val() + '=' + $($($($($(list[0]).children().last()).children()[0]).children()[1]).children('input')[0]).val(), ""));
 
         // grab the prototype template
         // replace the "__name__" used in the id and name of the prototype
@@ -42,11 +79,11 @@ $(document).ready(function () {
         // Increase the counter
         counter--;
 
-        if(counter === 0){
+        if (counter === 0) {
             $('.rm-another-collection-widget').attr('disabled', '');
         }
 
-        if(counter === 0 && ($('#params-fields-list').children().children('div')).length !== 0){
+        if (counter === 0 && ($('#params-fields-list').children('div')).length !== 0) {
             $('#params-fields-list').children('div').remove();
         }
         // And store it, the length cannot be used if deleting widgets is allowed
@@ -55,33 +92,33 @@ $(document).ready(function () {
     });
 });
 
-function readUrl(url){
+function readUrl(url) {
 
     var para_str = '';
 
     // Checking url is defined or not
 
-        /* url variable is defined */
-        var split_url = url.split('?');
-        para_str = split_url[1];
-        if(para_str !== undefined){
-            var parts = para_str.split('&');
-        }
+    /* url variable is defined */
+    var split_url = url.split('?');
+    para_str = split_url[1];
+    if (para_str !== undefined) {
+        var parts = para_str.split('&');
+    }
 
     // Check arguments are defined or not
-    if( para_str !== undefined && para_str !== '' ){
+    if (para_str !== undefined && para_str !== '') {
         var parameter_obj = {}; // Object
 
         // looping through all arguments and store in Object
-        for(var i=0;i<parts.length;i++){
+        for (var i = 0; i < parts.length; i++) {
             var split_val = parts[i].split('=');
 
             // Check argument is available or not e.g. ?num1=43&
-            if(split_val[0] == undefined || split_val[0] == '' )
+            if (split_val[0] == undefined || split_val[0] == '')
                 continue;
             var value = split_val[1];
             // Check value is available or not e.g. ?num1=43&num2= or ?num1=43&num2
-            if(value == undefined){
+            if (value == undefined) {
                 value = ""; // Assign space if value is not defined
             }
 
@@ -92,8 +129,37 @@ function readUrl(url){
         // Print all arguments
         return parameter_obj;
 
-    }else{
+    } else {
         return {};
     }
 
+}
+
+function onChangeKey(_e) {
+    if (($('#send_url').val()).includes(previousKey + '=') && previousKey !== '') {
+        $('#send_url').val($('#send_url').val().replace(previousKey + '=', this.value + '='));
+    } else {
+        if (($('#send_url').val().lastIndexOf('?') === ($('#send_url').val().length - 1)) || !$('#send_url').val().includes('='))
+            if (!$('#send_url').val().includes('?'))
+                $('#send_url').val($('#send_url').val() + '?' + this.value + '=' + $($($(this).parent().parent().children('div')[1]).children('input')[0]).val());
+            else
+                $('#send_url').val($('#send_url').val() + this.value + '=' + $($($(this).parent().parent().children('div')[1]).children('input')[0]).val());
+        else
+            $('#send_url').val($('#send_url').val() + '&' + this.value + '=' + $($($(this).parent().parent().children('div')[1]).children('input')[0]).val());
+    }
+}
+
+function onChangeParam(_e) {
+    if (($('#send_url').val()).includes($($($(this).parent().parent().children('div')[0]).children('input')[0]).val() + '=' + previousParam) && $($($(this).parent().parent().children('div')[0]).children('input')[0]).val() !== '') {
+        $('#send_url').val($('#send_url').val().replace($($($(this).parent().parent().children('div')[0]).children('input')[0]).val() + '=' + previousParam, $($($(this).parent().parent().children('div')[0]).children('input')[0]).val() + '=' + this.value));
+    }
+}
+
+function onFocusKey(_e) {
+    previousKey = this.value;
+}
+
+
+function onFocusParam(_e) {
+    previousParam = this.value;
 }
