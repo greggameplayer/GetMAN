@@ -2,7 +2,8 @@
 
 {% block title %}GetMAN{% endblock %}
 
-{% block javascripts %}<script src="{{ asset('scripts/add-collection-widget.js') }}" defer></script>{% endblock %}
+{% block javascripts %}
+    <script src="{{ asset('scripts/add-collection-widget.js') }}" defer></script>{% endblock %}
 
 {% block body %}
 
@@ -13,25 +14,29 @@
                 {{ form_start(form) }}
                 {{ form_row(form.method, {'label': "Méthode :", 'attr':{'class':'form-control col-6 mx-auto mb-3'}}) }}
                 {{ form_row(form.url, {'label': 'URL :', 'attr':{'class':'form-control col-6 mx-auto mb-3'}}) }}
-                <label for="send_params" class="required">Paramètres :</label>
-                <div id="params-fields-list"
-                    data-prototype="{{ form_widget(form.params.vars.prototype)|e }}"
-                    data-widget-tags="{{ '<div></div>'|e }}"
-                    data-widget-counter="{{ form.params|length }}">
-                    {% for paramsField in form.params %}
-                        <div>
-                            {{ form_errors(paramsField) }}
-                            {{ form_widget(paramsField) }}
-                        </div>
-                    {% endfor %}
-                </div>
+                <div id="paramsdiv">
+                    <label for="send_params" class="required">Paramètres :</label>
+                    <div id="params-fields-list"
+                         data-prototype="{{ form_widget(form.params.vars.prototype)|e }}"
+                         data-widget-tags="{{ '<div></div>'|e }}"
+                         data-widget-counter="{{ form.params|length }}">
+                        {% for paramsField in form.params %}
+                            <div>
+                                {{ form_errors(paramsField) }}
+                                {{ form_widget(paramsField) }}
+                            </div>
+                        {% endfor %}
+                    </div>
 
-                <button type="button"
-                        class="add-another-collection-widget btn btn-primary mb-4"
-                        data-list-selector="#params-fields-list">+</button>
-                <button type="button"
-                        class="rm-another-collection-widget btn btn-primary mb-4"
-                        data-list-selector="#params-fields-list">-</button>
+                    <button type="button"
+                            class="add-another-collection-widget btn btn-primary mb-4"
+                            data-list-selector="#params-fields-list">+
+                    </button>
+                    <button type="button"
+                            class="rm-another-collection-widget btn btn-primary mb-4"
+                            data-list-selector="#params-fields-list">-
+                    </button>
+                </div>
                 {{ form_row(form.Send,{'label':'Valider','attr':{'class':'btn btn-primary mb-4'}}) }}
                 {{ form_end(form) }}
             </div>

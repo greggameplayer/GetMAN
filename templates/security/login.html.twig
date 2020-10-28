@@ -3,23 +3,28 @@
 {% block title %}Log in!{% endblock %}
 
 {% block body %}
-<form method="post">
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
+    <div class="col-6 mx-auto mt-5">
+        <div class="fond-blanc text-center border rounded">
+            <form method="post" class="d-flex justify-content-center align-items-center flex-column w-50 mx-auto">
+                {% if error %}
+                    <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                {% endif %}
 
-    <h1 class="h3 mb-3 font-weight-normal">Connexion</h1>
-    <label for="inputEmail">Adresse mail</label>
-    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" required autofocus>
-    <label for="inputPassword">Mot de passe</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" required>
+                <h1 class="h3 mb-3 mt-4 font-weight-normal">Connexion</h1>
+                <label for="inputEmail">Adresse mail</label>
+                <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control mb-1"
+                       required autofocus>
+                <label for="inputPassword">Mot de passe</label>
+                <input type="password" name="password" id="inputPassword" class="form-control" required>
 
-    <input type="hidden" name="_csrf_token"
-           value="{{ csrf_token('authenticate') }}"
-    >
+                <input type="hidden" name="_csrf_token"
+                       value="{{ csrf_token('authenticate') }}"
+                >
 
-    <button class="btn btn-lg btn-primary" type="submit">
-        Valider
-    </button>
-</form>
+                <button class="btn btn-primary mt-3 mb-4" type="submit">
+                    Valider
+                </button>
+            </form>
+        </div>
+    </div>
 {% endblock %}

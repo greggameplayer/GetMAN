@@ -7,6 +7,14 @@ $(document).ready(function () {
         $('.rm-another-collection-widget').attr('disabled', '');
     }
 
+    $('#send_method').on('change', function(_e){
+        if(this.value === 'GET'){
+            document.querySelector('#paramsdiv').classList.remove('d-none');
+        } else {
+            document.querySelector('#paramsdiv').classList.add('d-none');
+        }
+    });
+
     $('#send_url').on('change', function (e) {
         let urlParams = readUrl($('#send_url').val());
         for (let i = 0; i < Object.keys(urlParams).length; i++) {
