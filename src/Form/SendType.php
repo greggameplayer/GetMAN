@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Form\Types\ParamType;
 use Doctrine\DBAL\ParameterType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\BaseType;
@@ -38,8 +39,8 @@ class SendType extends AbstractType
             ])
             ->add('url', UrlType::class, ['required' => true])
             ->add('params', CollectionType::class, [
-                'entry_type' => TextType::class,
-                'entry_options' => ['label' => false, 'attr' => ['class' => 'form-control col-6 mx-auto mb-3']],
+                'entry_type' => ParamType::class,
+                'entry_options' => ['label' => false, 'attr' => ['class' => 'd-flex flex-row justify-content-center justify-content-around paramtype']],
                 'prototype' => true,
                 'allow_add' => true,
                 'allow_delete' => true,

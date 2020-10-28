@@ -10,3 +10,13 @@ body{
     -webkit-border-radius: 4px 4px 4px 4px;
     border: 4px groove #0f0f0f;
 }
+
+.paramtype {
+    width: 30vw;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.paramtype input {
+    width: 9vw;
+}
