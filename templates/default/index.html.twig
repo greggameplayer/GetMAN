@@ -4,11 +4,18 @@
 
 {% block javascripts %}
     <script src="{{ asset('scripts/add-collection-widget.js') }}" defer></script>{% endblock %}
-
 {% block body %}
 
-    <div>
-        <div class="col-6 mx-auto mt-5">
+    <div class="d-flex flex-row">
+        {% if user != null %}
+            <div class="col-3 mt-5">
+                <div class="fond-blanc text-center border rounded">
+                    <h1 class="mt-4">Historique</h1>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="col-6 justify-self-center mt-5 {% if user == null %}mx-auto{% endif %}">
             <div class="fond-blanc text-center border rounded">
                 <h1 class="mt-4">Requête</h1>
                 {{ form_start(form) }}
@@ -35,6 +42,29 @@
                     <button type="button"
                             class="rm-another-collection-widget btn btn-primary mb-4"
                             data-list-selector="#params-fields-list">-
+                    </button>
+                </div>
+                <div id="bodydiv">
+                    <label for="send_body" class="required">Body JSON :</label>
+                    <div id="body-fields-list"
+                         data-prototype="{{ form_widget(form.body.vars.prototype)|e }}"
+                         data-widget-tags="{{ '<div></div>'|e }}"
+                         data-widget-counter="{{ form.body|length }}">
+                        {% for bodyField in form.body %}
+                            <div>
+                                {{ form_errors(bodyField) }}
+                                {{ form_widget(bodyField) }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <button type="button"
+                            class="add-another-collection-widget-body btn btn-primary mb-4"
+                            data-list-selector="#body-fields-list">+
+                    </button>
+                    <button type="button"
+                            class="rm-another-collection-widget-body btn btn-primary mb-4"
+                            data-list-selector="#body-fields-list">-
                     </button>
                 </div>
                 {{ form_row(form.Send,{'label':'Valider','attr':{'class':'btn btn-primary mb-4'}}) }}

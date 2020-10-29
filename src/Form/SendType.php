@@ -46,6 +46,14 @@ class SendType extends AbstractType
                 'allow_delete' => true,
                 'label' => false
             ])
+            ->add('body', CollectionType::class, [
+                'entry_type' => ParamType::class,
+                'entry_options' => ['label' => false, 'attr' => ['class' => 'd-flex flex-row justify-content-center justify-content-around paramtype']],
+                'prototype' => true,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'label' => false
+            ])
             ->add('Send',SubmitType::class)
         ;
     }

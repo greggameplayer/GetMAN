@@ -1,34 +1,79 @@
-let previousKey = '', previousParam = '';
+let previousKey = '', previousParam = '', previousUrl = '';
 $(document).ready(function () {
     let list = $($(this).attr('data-list-selector'));
     let counter = $('#params-fields-list').children().length;
+    let counterBody = $('#body-fields-list').children().length;
 
     if (counter === 0) {
         $('.rm-another-collection-widget').attr('disabled', '');
     }
 
-    $('#send_method').on('change', function(_e){
-        if(this.value === 'GET'){
+    if (counterBody === 0) {
+        $('.rm-another-collection-widget-body').attr('disabled', '');
+    }
+
+    if ($('#send_method').val() === 'GET') {
+        document.querySelector('#paramsdiv').classList.remove('d-none');
+        document.querySelector('#bodydiv').classList.add('d-none');
+    } else {
+        document.querySelector('#paramsdiv').classList.add('d-none');
+        document.querySelector('#bodydiv').classList.remove('d-none');
+    }
+
+    $('#send_url').on('focus', function (_e) {
+        if ($('#send_method').val() === 'GET') {
+            previousUrl = this.value;
+        }
+    });
+
+    $('#send_method').on('change', function (_e) {
+        if (this.value === 'GET') {
             document.querySelector('#paramsdiv').classList.remove('d-none');
+            document.querySelector('#bodydiv').classList.add('d-none');
         } else {
             document.querySelector('#paramsdiv').classList.add('d-none');
+            document.querySelector('#bodydiv').classList.remove('d-none');
         }
     });
 
     $('#send_url').on('change', function (e) {
-        let urlParams = readUrl($('#send_url').val());
-        for (let i = 0; i < Object.keys(urlParams).length; i++) {
-            let exist = false;
-            $('#params-fields-list').children().children('div').each(function () {
-                if ($($($(this).children('div')[0]).children('input')[0]).val() === Object.keys(urlParams)[i]) {
-                    $($($(this).children('div')[1]).children('input')[0]).val(Object.values(urlParams)[i]);
-                    exist = true;
+        if ($('#send_method').val() === 'GET') {
+            let urlParams = readUrl($('#send_url').val());
+            if (previousUrl !== '' && Object.keys(readUrl(previousUrl)).length === Object.keys(urlParams).length) {
+                for (let i = 0; i < Object.keys(urlParams).length; i++) {
+                    for (let j = 0; j < Object.keys(readUrl(previousUrl)).length; j++) {
+                        if (Object.keys(urlParams)[i] !== Object.keys(readUrl(previousUrl))[j]) {
+                            $('#params-fields-list').children().children('div').each(function () {
+                                if ($($($(this).children('div')[0]).children('input')[0]).val() === Object.keys(readUrl(previousUrl))[i]) {
+                                    $($($(this).children('div')[0]).children('input')[0]).val(Object.keys(urlParams)[i]);
+                                }
+                            });
+                        }
+
+                        if(Object.values(urlParams)[i] !== Object.values(readUrl(previousUrl))[j]) {
+                            $('#params-fields-list').children().children('div').each(function () {
+                                if ($($($(this).children('div')[1]).children('input')[0]).val() === Object.values(readUrl(previousUrl))[i] && $($($(this).children('div')[0]).children('input')[0]).val() === Object.keys(urlParams)[i]) {
+                                    $($($(this).children('div')[1]).children('input')[0]).val(Object.values(urlParams)[i]);
+                                }
+                            });
+                        }
+                    }
                 }
-            });
-            if (!exist) {
-                $('.add-another-collection-widget').click();
-                $($($($('#params-fields-list').children()).children().last().children('div')[0]).children('input')[0]).val(Object.keys(urlParams)[i]);
-                $($($($('#params-fields-list').children()).children().last().children('div')[1]).children('input')[0]).val(Object.values(urlParams)[i]);
+                return;
+            }
+            for (let i = 0; i < Object.keys(urlParams).length; i++) {
+                let exist = false;
+                $('#params-fields-list').children().children('div').each(function () {
+                    if ($($($(this).children('div')[0]).children('input')[0]).val() === Object.keys(urlParams)[i]) {
+                        $($($(this).children('div')[1]).children('input')[0]).val(Object.values(urlParams)[i]);
+                        exist = true;
+                    }
+                });
+                if (!exist) {
+                    $('.add-another-collection-widget').click();
+                    $($($($('#params-fields-list').children()).children().last().children('div')[0]).children('input')[0]).val(Object.keys(urlParams)[i]);
+                    $($($($('#params-fields-list').children()).children().last().children('div')[1]).children('input')[0]).val(Object.values(urlParams)[i]);
+                }
             }
         }
     })
@@ -71,6 +116,28 @@ $(document).ready(function () {
         });
     });
 
+    $('.add-another-collection-widget-body').click(function (e) {
+        var list = $($(this).attr('data-list-selector'));
+        // Try to find the counter of the list or use the length of the list
+        var counter = list.data('widget-counter') || list.children().length;
+
+        // grab the prototype template
+        var newWidget = list.attr('data-prototype');
+        // replace the "__name__" used in the id and name of the prototype
+        // with a number that's unique to your emails
+        // end name attribute looks like name="contact[emails][2]"
+        newWidget = newWidget.replace(/__name__/g, counter);
+        // Increase the counter
+        counter++;
+        // And store it, the length cannot be used if deleting widgets is allowed
+        list.data('widget-counter', counter);
+
+        // create a new list element and add it to the list
+        var newElem = $(list.attr('data-widget-tags')).html(newWidget);
+        newElem.appendTo(list);
+        $('.rm-another-collection-widget-body').removeAttr('disabled');
+    });
+
     $('.rm-another-collection-widget').click(function (e) {
         var list = $($(this).attr('data-list-selector'));
         // Try to find the counter of the list or use the length of the list
@@ -93,6 +160,31 @@ $(document).ready(function () {
 
         if (counter === 0 && ($('#params-fields-list').children('div')).length !== 0) {
             $('#params-fields-list').children('div').remove();
+        }
+        // And store it, the length cannot be used if deleting widgets is allowed
+        list.data('widget-counter', counter);
+
+    });
+
+    $('.rm-another-collection-widget-body').click(function (e) {
+        var list = $($(this).attr('data-list-selector'));
+        // Try to find the counter of the list or use the length of the list
+        var counter = list.data('widget-counter') || list.children().length;
+
+        // grab the prototype template
+        // replace the "__name__" used in the id and name of the prototype
+        // with a number that's unique to your emails
+        // end name attribute looks like name="contact[emails][2]"
+        list[0].lastChild.remove();
+        // Increase the counter
+        counter--;
+
+        if (counter === 0) {
+            $('.rm-another-collection-widget-body').attr('disabled', '');
+        }
+
+        if (counter === 0 && ($('#body-fields-list').children('div')).length !== 0) {
+            $('#body-fields-list').children('div').remove();
         }
         // And store it, the length cannot be used if deleting widgets is allowed
         list.data('widget-counter', counter);

@@ -3,8 +3,8 @@
 namespace App\Controller;
 
 use App\Form\SendType;
-use http\Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpClient\CurlHttpClient;
@@ -19,6 +19,7 @@ class DefaultController extends AbstractController
      */
     public function index(Request $request)
     {
+
         $affichage= false;
         $form = $this->createForm(SendType::class);
         $form->handleRequest($request);
@@ -32,6 +33,8 @@ class DefaultController extends AbstractController
                 $result = nl2br($this->prettyPrint(json_encode($requete->request($form))));
             }catch(TransportException $e){
                 $err = $e->getMessage();
+            }catch (ClientException $e){
+                $err = $e->getMessage();
             }
             $affichage = true;
         }
@@ -40,7 +43,8 @@ class DefaultController extends AbstractController
             'form' => $form->createView(),
             'affichage' => $affichage,
             'result' => $result,
-            'TransportError' => $err
+            'TransportError' => $err,
+            'user' => $this->getUser()
         ]);
     }
 
@@ -52,6 +56,7 @@ class DefaultController extends AbstractController
         $in_escape = false;
         $ends_line_level = NULL;
         $json_length = strlen( $json );
+        $colorswitch = false;
 
         for( $i = 0; $i < $json_length; $i++ ) {
             $char = $json[$i];
@@ -64,6 +69,13 @@ class DefaultController extends AbstractController
             if ( $in_escape ) {
                 $in_escape = false;
             } else if( $char === '"' ) {
+                if(! $colorswitch){
+                    $char = '<span style="color: green;">'.$char;
+                    $colorswitch = true;
+                } else {
+                    $char = $char.'</span>';
+                    $colorswitch = false;
+                }
                 $in_quotes = !$in_quotes;
             } else if( ! $in_quotes ) {
                 switch( $char ) {
@@ -71,12 +83,15 @@ class DefaultController extends AbstractController
                     $level--;
                     $ends_line_level = NULL;
                     $new_line_level = $level;
+                    $char = '<span style="color: red;">'.$char.'</span>';
                     break;
 
                     case '{': case '[':
                     $level++;
+                    $char = '<span style="color: red;">'.$char.'</span>';
                     case ',':
                         $ends_line_level = $level;
+                        $char = '<span style="color: orange;">'.$char.'</span>';
                         break;
 
                     case ':':

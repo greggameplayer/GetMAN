@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -20,7 +21,20 @@ class HttpRequestController extends AbstractController
     {
         $paramsArray = [];
         for ($i = 0; $i < count($form->get('params')->getData()); $i++) {
-            $paramsArray[$form->get('params')->getData()[$i]['key']] = $form->get('params')->getData()[$i]['param'];
+            if (is_numeric($form->get('params')->getData()[$i]['param'])) {
+                $paramsArray[$form->get('params')->getData()[$i]['key']] = intval($form->get('params')->getData()[$i]['param']);
+            } else {
+                $paramsArray[$form->get('params')->getData()[$i]['key']] = $form->get('params')->getData()[$i]['param'];
+            }
+        }
+
+        $bodyArray = [];
+        for ($i = 0; $i < count($form->get('body')->getData()); $i++) {
+            if (is_numeric($form->get('body')->getData()[$i]['param'])) {
+                $bodyArray[$form->get('body')->getData()[$i]['key']] = intval($form->get('body')->getData()[$i]['param']);
+            } else {
+                $bodyArray[$form->get('body')->getData()[$i]['key']] = $form->get('body')->getData()[$i]['param'];
+            }
         }
         /*
          * Détection Key & Value depuis URL
@@ -33,15 +47,23 @@ class HttpRequestController extends AbstractController
             $Key_ValueArray [$urlKey_Value[$part-1]] = $urlKey_Value[$part];
         }
         */
-
-        $response = $this->client->request(
-            $form->get('method')->getData(),
-            $form->get('url')->getData(),
-            [
-                'json' => [],
-                'query' => $paramsArray
-            ]
-        );
+        if ($form->get('method')->getData() === "GET") {
+            $response = $this->client->request(
+                $form->get('method')->getData(),
+                $form->get('url')->getData(),
+                [
+                    'query' => $paramsArray
+                ]
+            );
+        } else {
+            $response = $this->client->request(
+                $form->get('method')->getData(),
+                $form->get('url')->getData(),
+                [
+                    'json' => $bodyArray
+                ]
+            );
+        }
 
         $statusCode = $response->getStatusCode();
         // $statusCode = 200
