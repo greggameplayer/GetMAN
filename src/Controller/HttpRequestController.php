@@ -58,7 +58,8 @@ class HttpRequestController extends AbstractController
                 $form->get('method')->getData(),
                 $form->get('url')->getData(),
                 [
-                    'query' => $paramsArray
+                    'query' => $paramsArray,
+                    'headers' => $headersArray
                 ]
             );
         } else {
