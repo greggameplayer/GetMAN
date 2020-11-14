@@ -9,12 +9,13 @@
         <script src="{{ asset('scripts/bootstrap.js') }}" crossorigin="anonymous" defer></script>
         <link rel="stylesheet" href="{{ asset('https://bootswatch.com/4/lux/bootstrap.min.css') }}">
         <link rel="stylesheet" href="{{ asset('style/styles.css') }}">
+        <link rel="icon" type="image/png" href="{{ asset('photo/getman.png') }}" />
         <script src="{{ asset('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js') }}" crossorigin="anonymous" defer></script>
         {% block stylesheets %}{% endblock %}
     </head>
     <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <a class="navbar-brand" href="/">GetMAN</a>
+        <a class="navbar-brand" href="/"><img src="{{ asset('photo/getman.png') }}" width="65rem" /></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
