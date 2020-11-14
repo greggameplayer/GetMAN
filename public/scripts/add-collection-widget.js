@@ -3,11 +3,15 @@ $(document).ready(function () {
     let list = $($(this).attr('data-list-selector'));
     let counter = $('#params-fields-list').children().length;
     let counterBody = $('#body-fields-list').children().length;
+    let counterHeaders = $('#headers-fields-list').children().length;
 
     disableRmBtOnZeroCounter(counter, 'rm-another-collection-widget');
     disableRmBtOnZeroCounter(counterBody, 'rm-another-collection-widget-body');
+    disableRmBtOnZeroCounter(counterHeaders, 'rm-another-collection-widget-headers');
 
     bodyOrParams();
+
+    $('.request').on('click', onRequestClick);
 
     $('#send_url').on('focus', function (_e) { // permet d'obtenir l'url précédente avant modification lors de l'entrée sur le champs
         if ($('#send_method').val() === 'GET') {
@@ -86,6 +90,28 @@ $(document).ready(function () {
         $('.rm-another-collection-widget-body').removeAttr('disabled');
     });
 
+    $('.add-another-collection-widget-headers').click(function (e) { // permet d'ajouter un body parameter supplémentaire lors du clique sur le bouton
+        var list = $($(this).attr('data-list-selector'));
+        // Try to find the counter of the list or use the length of the list
+        var counter = list.data('widget-counter') || list.children().length;
+
+        // grab the prototype template
+        var newWidget = list.attr('data-prototype');
+        // replace the "__name__" used in the id and name of the prototype
+        // with a number that's unique to your emails
+        // end name attribute looks like name="contact[emails][2]"
+        newWidget = newWidget.replace(/__name__/g, counter);
+        // Increase the counter
+        counter++;
+        // And store it, the length cannot be used if deleting widgets is allowed
+        list.data('widget-counter', counter);
+
+        // create a new list element and add it to the list
+        var newElem = $(list.attr('data-widget-tags')).html(newWidget);
+        newElem.appendTo(list);
+        $('.rm-another-collection-widget-headers').removeAttr('disabled');
+    });
+
     $('.rm-another-collection-widget').click(function (e) { // permet d'enlever le dernier query parameter lors du clique sur le bouton
         var list = $($(this).attr('data-list-selector'));
         // Try to find the counter of the list or use the length of the list
@@ -133,6 +159,31 @@ $(document).ready(function () {
 
         if (counter === 0 && ($('#body-fields-list').children('div')).length !== 0) {
             $('#body-fields-list').children('div').remove();
+        }
+        // And store it, the length cannot be used if deleting widgets is allowed
+        list.data('widget-counter', counter);
+
+    });
+
+    $('.rm-another-collection-widget-headers').click(function (e) { // permet d'enlever le dernier body parameter lors du clique sur le bouton
+        var list = $($(this).attr('data-list-selector'));
+        // Try to find the counter of the list or use the length of the list
+        var counter = list.data('widget-counter') || list.children().length;
+
+        // grab the prototype template
+        // replace the "__name__" used in the id and name of the prototype
+        // with a number that's unique to your emails
+        // end name attribute looks like name="contact[emails][2]"
+        list[0].lastChild.remove();
+        // Increase the counter
+        counter--;
+
+        if (counter === 0) {
+            $('.rm-another-collection-widget-headers').attr('disabled', '');
+        }
+
+        if (counter === 0 && ($('#headers-fields-list').children('div')).length !== 0) {
+            $('#headers-fields-list').children('div').remove();
         }
         // And store it, the length cannot be used if deleting widgets is allowed
         list.data('widget-counter', counter);
@@ -286,4 +337,14 @@ function bindEventsToParamsValues(){ // lie les événements nécessaire avec le
     $($($('#params-fields-list').children()).children()).each(function () {
         $($($(this).children('div')[1]).children('input')[0]).off('change').on('change', onChangeParam).off('focus').on('focus', onFocusParam);
     });
+}
+
+function onRequestClick(e){
+    const url = $($(this).children()[1]).html();
+    const method = $($(this).children()[0]).html();
+    $('#send_url').focus();
+    $('#send_url').val(url);
+    $('#send_method option[value="'+ method +'"]').prop('selected', true);
+    bodyOrParams();
+    $('#send_url').change();
 }

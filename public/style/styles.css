@@ -20,3 +20,12 @@ body{
 .paramtype input {
     width: 9vw;
 }
+
+.break-word {
+    word-break: break-all;
+}
+
+.request:hover {
+    cursor: pointer;
+    filter: sepia(100%);
+}

@@ -2,10 +2,11 @@
 <html>
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{% block title %}Welcome!{% endblock %}</title>
         <script src="{{ asset('scripts/jquery-3.5.1.min.js') }}"></script>
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous" defer></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.js" crossorigin="anonymous" defer></script>
+        <script src="{{ asset('scripts/bootstrap.js') }}" crossorigin="anonymous" defer></script>
         <link rel="stylesheet" href="{{ asset('https://bootswatch.com/4/lux/bootstrap.min.css') }}">
         <link rel="stylesheet" href="{{ asset('style/styles.css') }}">
         <script src="{{ asset('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js') }}" crossorigin="anonymous" defer></script>
@@ -18,7 +19,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="navbarColor01">
+        <div class="collapse navbar-collapse " id="navbarColor01">
             <ul class="navbar-nav mr-auto">
                 {% if not is_granted('ROLE_USER') %}
                     <li class="nav-item active">

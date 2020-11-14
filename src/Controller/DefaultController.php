@@ -2,7 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\Requete;
+use App\Entity\User;
 use App\Form\SendType;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\HttpClient\Exception\TransportException;
@@ -27,7 +31,11 @@ class DefaultController extends AbstractController
         $err = '';
         if($form->isSubmitted() && $form->isValid()){
             // envoie la requête
-            $client = new CurlHttpClient();
+            $client = new CurlHttpClient(["verify_peer"=>false,"verify_host"=>false]);
+            $connected = $this->isGranted('IS_AUTHENTICATED_REMEMBERED');
+            $client->connected = $connected;
+            $client->getDoctrine = $this->getDoctrine();
+            $client->getUser = $this->getUser();
             $requete = new HttpRequestController($client);
             try {
                 $result = nl2br($this->prettyPrint(json_encode($requete->request($form))));
@@ -36,15 +44,26 @@ class DefaultController extends AbstractController
             }catch (ClientException $e){
                 $err = $e->getMessage();
             }
+
             $affichage = true;
+            // sauvegarde la requête dans la bdd
+
         }
+        /** @var User $user */
+        $user = $this->getUser();
+        $requests = '';
+        if($user != null){
+            $requests = $user->getRequete()->getValues();
+        }
+
         return $this->render('default/index.html.twig', [
             'controller_name' => 'DefaultController',
             'form' => $form->createView(),
             'affichage' => $affichage,
             'result' => $result,
             'TransportError' => $err,
-            'user' => $this->getUser()
+            'user' => $user,
+            'requests' => $requests
         ]);
     }
 

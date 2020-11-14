@@ -3,13 +3,15 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
- * @UniqueEntity(fields={"email"}, message="There is already an account with this email")
+ * @UniqueEntity(fields={"email"}, message="Un compte exite déja avec cette adresse mail.")
  */
 class User implements UserInterface
 {
@@ -40,6 +42,23 @@ class User implements UserInterface
      * @ORM\Column(type="boolean")
      */
     private $isVerified = false;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Requete::class, mappedBy="user")
+     */
+    private $requete;
+
+    /**
+     * @ORM\Column(type="text")
+     */
+    private $token;
+
+    public function __construct()
+    {
+        $this->requete = new ArrayCollection();
+    }
+
+
 
 
 
@@ -133,4 +152,49 @@ class User implements UserInterface
 
         return $this;
     }
+
+    /**
+     * @return Collection|Requete[]
+     */
+    public function getRequete(): Collection
+    {
+        return $this->requete;
+    }
+
+    public function addRequete(Requete $requete): self
+    {
+        if (!$this->requete->contains($requete)) {
+            $this->requete[] = $requete;
+            $requete->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRequete(Requete $requete): self
+    {
+        if ($this->requete->contains($requete)) {
+            $this->requete->removeElement($requete);
+            // set the owning side to null (unless already changed)
+            if ($requete->getUser() === $this) {
+                $requete->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+
+    public function setToken(string $token): self
+    {
+        $this->token = $token;
+
+        return $this;
+    }
+
+
 }

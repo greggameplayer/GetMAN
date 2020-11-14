@@ -11,13 +11,10 @@
             <form method="post" class="">
                 <h1 class="h3 mb-3 mt-4 font-weight-normal">Inscription</h1>
                 {{ form_start(registrationForm) }}
-                {{ form_row(registrationForm.email, {'label': "Veuillez saisir votre email :", 'attr':{'class':'form-control  col-6 mx-auto mb-3'}}) }}
-                {{ form_row(registrationForm.plainPassword, {'label': 'Veuillez saisir votre mot de passe :', 'attr':{'class':'form-control col-6 mx-auto mb-3'}}) }}
+                {{ form_row(registrationForm.email, {'label': "Veillez saisir votre email :", 'attr':{'class':'form-control  col-6 mx-auto mb-3'}}) }}
+                {{ form_row(registrationForm.plainPassword, {'label': 'Veillez saisir votre mot de passe :', 'attr':{'class':'form-control col-6 mx-auto mb-3'}}) }}
                 {{ form_row(registrationForm.agreeTerms, {'label': "Acceptez les conditions d'utilisations.",'attr':{'class':'form-control col-6 mx-auto mb-3'}}) }}
-                {{ form_row(registrationForm.valider, {'label': "Valider",'attr':{'class':'btn btn-primary mb-4'}}) }}
-                <input type="hidden" name="_csrf_token"
-                       value="{{ csrf_token('authenticate') }}"
-                >
+                <button type="submit" class="btn btn-primary mb-4">Valider</button>
                 {{ form_end(registrationForm) }}
             </form>
         </div>

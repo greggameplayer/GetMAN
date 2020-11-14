@@ -2,7 +2,14 @@
 
 namespace App\Controller;
 
+use App\Entity\Requete;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
+use phpDocumentor\Reflection\Types\Boolean;
+use PhpParser\Node\Expr\Cast\Bool_;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\Routing\Annotation\Route;
@@ -36,17 +43,16 @@ class HttpRequestController extends AbstractController
                 $bodyArray[$form->get('body')->getData()[$i]['key']] = $form->get('body')->getData()[$i]['param'];
             }
         }
-        /*
-         * Détection Key & Value depuis URL
-        ::A finir::
-        $urlExploded = explode( "/?", $form->get('method')->getData());
-        $urlKeyValue = explode("&", $urlExploded[1]);
-        $urlKey_Value = explode("=", $urlKeyValue);
-        $Key_ValueArray = [];
-        for($part = 1; $part < count($urlKey_Value); $part+=2){
-            $Key_ValueArray [$urlKey_Value[$part-1]] = $urlKey_Value[$part];
+
+        $headersArray = [];
+        for ($i = 0; $i < count($form->get('headers')->getData()); $i++) {
+            if (is_numeric($form->get('headers')->getData()[$i]['param'])) {
+                $headersArray[$form->get('headers')->getData()[$i]['key']] = intval($form->get('headers')->getData()[$i]['param']);
+            } else {
+                $headersArray[$form->get('headers')->getData()[$i]['key']] = $form->get('headers')->getData()[$i]['param'];
+            }
         }
-        */
+
         if ($form->get('method')->getData() === "GET") {
             $response = $this->client->request(
                 $form->get('method')->getData(),
@@ -60,10 +66,26 @@ class HttpRequestController extends AbstractController
                 $form->get('method')->getData(),
                 $form->get('url')->getData(),
                 [
-                    'json' => $bodyArray
+                    'json' => $bodyArray,
+                    'headers' => $headersArray
                 ]
             );
         }
+
+        if($this->client->connected)
+        {
+            $requeteBdd = new Requete();
+            /** @var EntityManager $entityManager */
+            $entityManager = $this->client->getDoctrine->getManager();
+            $requeteBdd->setUser($this->client->getUser);
+            $requeteBdd->setUrl($form->get('url')->getData());
+            $requeteBdd->setMethodType($form->get('method')->getData());
+            $requeteBdd->setBody($bodyArray);
+            $entityManager->persist($requeteBdd);
+            $entityManager->flush();
+        }
+
+
 
         $statusCode = $response->getStatusCode();
         // $statusCode = 200

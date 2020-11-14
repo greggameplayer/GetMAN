@@ -2,15 +2,19 @@
 
 {% block title %}GetMAN{% endblock %}
 
-{% block javascripts %}
-    <script src="{{ asset('scripts/add-collection-widget.js') }}" defer></script>{% endblock %}
+{% block javascripts %}<script src="{{ asset('scripts/add-collection-widget.js') }}" defer></script>{% endblock %}
 {% block body %}
 
     <div class="d-flex flex-row">
         {% if user != null %}
             <div class="col-3 mt-5">
                 <div class="fond-blanc text-center border rounded">
-                    <h1 class="mt-4">Historique</h1>
+                    <h1 class="mt-4" style="font-size: min(2rem, 2vw);">Historique</h1>
+                    {% for request in requests|reverse %}
+                        <div class="request border d-flex flex-row flex-wrap justify-content-around break-word">
+                            <span style="color: black; font-size: calc(0.75em + 0.15vw);">{{ request.methodType }}</span><span style="font-size: calc(0.75em + 0.15vw);">{{ request.url }}</span>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
         {% endif %}
@@ -65,6 +69,29 @@
                     <button type="button"
                             class="rm-another-collection-widget-body btn btn-primary mb-4"
                             data-list-selector="#body-fields-list">-
+                    </button>
+                </div>
+                <div id="headersdi">
+                    <label for="send_headers" class="required">Headers :</label>
+                    <div id="headers-fields-list"
+                         data-prototype="{{ form_widget(form.headers.vars.prototype)|e }}"
+                         data-widget-tags="{{ '<div></div>'|e }}"
+                         data-widget-counter="{{ form.headers|length }}">
+                        {% for headersField in form.headers %}
+                            <div>
+                                {{ form_errors(headersField) }}
+                                {{ form_widget(headersField) }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <button type="button"
+                            class="add-another-collection-widget-headers btn btn-primary mb-4"
+                            data-list-selector="#headers-fields-list">+
+                    </button>
+                    <button type="button"
+                            class="rm-another-collection-widget-headers btn btn-primary mb-4"
+                            data-list-selector="#headers-fields-list">-
                     </button>
                 </div>
                 {{ form_row(form.Send,{'label':'Valider','attr':{'class':'btn btn-primary mb-4'}}) }}
